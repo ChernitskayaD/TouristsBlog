@@ -5,6 +5,7 @@ import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,6 +25,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
@@ -36,6 +38,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.touristsblog.ui.screen.myposts.createpost.PostItem
 
@@ -43,14 +47,14 @@ import com.example.touristsblog.ui.screen.myposts.createpost.PostItem
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ViewPostScreen(
-    viewModel: ViewPostViewModel
+    viewModel: ViewPostViewModel,
 ) {
     val showDialog = remember { mutableStateOf(false) }
     val state = viewModel.screenState.collectAsState()
-
     if (showDialog.value) {
         MyAlertDialog(showDialog = showDialog, viewModel)
     }
+    val navController = rememberNavController()
     Scaffold(
         modifier = Modifier,
         topBar = {
@@ -67,9 +71,13 @@ fun ViewPostScreen(
                     modifier = Modifier
                         .padding(start = 16.dp)
                         .padding(vertical = 10.dp)
+                        .clickable {
+                            viewModel.goBack()
+                            navController.navigateUp()
+                        }
                 )
                 Text(
-                    text = "Создание нового поста",
+                    text = "Просмотр поста",
                     color = MaterialTheme.colors.onPrimary,
                     modifier = Modifier
                         .padding(start = 16.dp)
@@ -84,7 +92,7 @@ fun ViewPostScreen(
                 },
                 modifier = Modifier.padding(bottom = 56.dp)
             ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "add button")
+                Icon(imageVector = Icons.Default.Edit, contentDescription = "edit button")
             }
         }
     ) {
@@ -97,10 +105,10 @@ fun ViewPostScreen(
         ) {
             state.value.forEach { item ->
                 when (item) {
-                    is PostItem.GeoItem -> TextContent(viewModel, item.itemPosition)
-                    is PostItem.ImageItem -> ImagePicker(viewModel, item.itemPosition)
-                    is PostItem.TextItem -> TextContent(viewModel, item.itemPosition)
-                    is PostItem.TitleItem -> Title(viewModel, item.itemPosition)
+                    is PostItem.GeoItem -> TextContent(item.text)
+                    is PostItem.ImageItem -> ImagePicker(item.imageUri)
+                    is PostItem.TextItem -> TextContent(item.text)
+                    is PostItem.TitleItem -> Title(item.title)
                 }
             }
             Button(
@@ -114,7 +122,13 @@ fun ViewPostScreen(
                     .fillMaxWidth()
             ) {
                 Text(
-                    text = "Сохранить",
+                    text = "Сделать доступным для всех",
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                )
+                Text(
+                    text = "Удалить",
                     modifier = Modifier
                         .fillMaxWidth(),
                     textAlign = TextAlign.Center,
@@ -127,11 +141,8 @@ fun ViewPostScreen(
 @Composable
 @OptIn(ExperimentalMaterialApi::class)
 private fun Title(
-    viewModel: ViewPostViewModel,
-    itemPosition: Int,
+    title: String,
 ) {
-    var title by remember { mutableStateOf("Заголовок") }
-
     Text(
         text = title,
         modifier = Modifier.fillMaxWidth(),
@@ -141,10 +152,8 @@ private fun Title(
 @Composable
 @OptIn(ExperimentalMaterialApi::class)
 private fun TextContent(
-    viewModel: ViewPostViewModel,
-    itemPosition: Int,
+    content: String,
 ) {
-    var content by remember { mutableStateOf("") }
     Text(
         text = content,
         modifier = Modifier.fillMaxWidth(),
@@ -166,19 +175,14 @@ private fun GeoContent(
 
 @Composable
 fun ImagePicker(
-    viewModel: ViewPostViewModel,
-    itemPosition: Int,
+    imageUrl: String,
 ) {
-    val imageUri by remember { mutableStateOf<Uri?>(null) }
-
-    imageUri?.let {
-        Image(
-            painter = rememberAsyncImagePainter(it),
-            contentDescription = null,
-            modifier = Modifier.fillMaxWidth(),
-            contentScale = ContentScale.Fit
-        )
-    }
+    AsyncImage(
+        model = imageUrl,
+        contentDescription = null,
+        modifier = Modifier.fillMaxWidth(),
+        contentScale = ContentScale.Fit
+    )
 }
 
 @Composable

@@ -86,6 +86,5 @@ fun <R : ScreenRoute> R.generatePath(vararg params: Pair<String, Any?>?): Naviga
         override val screenRoute: R = screenRoute
 
         override val path: String = screenRoute.routeDefinition.getFormattedRoutePath(params)
-
     }
 }

@@ -13,6 +13,9 @@ abstract class BaseViewModel : ViewModel() {
         mNavigationController = navigationController
     }
 
+    fun navBack(){
+        mNavigationController?.getNavController()?.navigateUp()
+    }
     /**
      * Navigate to the [destinationRoute]
      * @param destinationRoute destination
@@ -21,8 +24,7 @@ abstract class BaseViewModel : ViewModel() {
         destinationRoute: NavigableRoute<T>
     ) = mNavigationController?.navigateTo(
         destinationRoute = destinationRoute
-    )
-        ?: IllegalStateException("NavigationController is not defined, impossible to navigate to ${destinationRoute.path}")
+    ) ?: IllegalStateException("NavigationController is not defined, impossible to navigate to ${destinationRoute.path}")
 
     /**
      * Navigate back to the [destinationRoute] with the previous route [parentRoute]
@@ -35,7 +37,5 @@ abstract class BaseViewModel : ViewModel() {
     ) = mNavigationController?.navigateBackTo(
         destinationRoute = destinationRoute,
         parentRoute = parentRoute
-    )
-        ?: IllegalStateException("NavigationController is not defined, impossible to navigate to ${destinationRoute.path}")
-
+    ) ?: IllegalStateException("NavigationController is not defined, impossible to navigate to ${destinationRoute.path}")
 }

@@ -1,5 +1,6 @@
 package com.example.touristsblog.ui.screen.myposts.postslist
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -12,6 +13,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.example.touristsblog.navigation.Routes
+import com.example.touristsblog.navigation.routing.generatePath
 import com.example.touristsblog.ui.theme.TouristsBlogTheme
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -56,6 +59,9 @@ fun PostListScreen(
 fun PostCard(item: PostPreview, viewModel: PostListViewModel) {
     Card(
         backgroundColor = MaterialTheme.colors.background,
+        modifier = Modifier.clickable {
+            viewModel.openPost(item.postId)
+        },
         elevation = 5.dp
     ) {
         Column(modifier = Modifier.padding(8.dp)) {

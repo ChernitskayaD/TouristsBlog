@@ -76,6 +76,9 @@ fun CreatePostScreen(
                     modifier = Modifier
                         .padding(start = 16.dp)
                         .padding(vertical = 10.dp)
+                        .clickable {
+                            viewModel.goBack()
+                        }
                 )
                 Text(
                     text = "Создание нового поста",

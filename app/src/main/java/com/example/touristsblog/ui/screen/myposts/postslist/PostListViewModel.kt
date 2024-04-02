@@ -43,6 +43,15 @@ class PostListViewModel @Inject constructor() : BaseViewModel() {
         }
     }
 
+    fun openPost(postId: String){
+        viewModelScope.launch {
+            navigateTo(
+                Routes.ViewPost.generatePath(
+                    "postId" to postId
+                )
+            )
+        }
+    }
     fun onClickCreateNewPost() = viewModelScope.launch {
         navigateTo(
             Routes.CreatePost.generatePath()

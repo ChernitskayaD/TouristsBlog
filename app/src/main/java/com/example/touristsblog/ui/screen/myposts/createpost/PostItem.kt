@@ -1,8 +1,12 @@
 package com.example.touristsblog.ui.screen.myposts.createpost
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 sealed class PostItem(
     val itemPosition: Int,
-) {
+) : Parcelable {
     data class TextItem(
         val text: String,
         val position: Int,

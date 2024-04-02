@@ -59,4 +59,8 @@ object Routes {
         icon = Icons.Default.AccountCircle,
         title = "Профиль",
     )
+
+    object ViewPost : ScreenRoute(
+        routeDefinition = Definition("ViewPost"),
+    )
 }

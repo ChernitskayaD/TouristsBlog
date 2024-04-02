@@ -28,6 +28,7 @@ class GreetingsViewModel @Inject constructor() : BaseViewModel() {
 
     fun onClickSignUp() = viewModelScope.launch {
         navigateTo(
-            Routes.SignUp.generatePath())
+            Routes.SignUp.generatePath()
+        )
     }
 }

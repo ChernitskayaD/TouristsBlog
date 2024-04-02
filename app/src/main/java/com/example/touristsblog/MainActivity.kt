@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgs
 import com.example.touristsblog.ui.screen.signup.SignUpScreen
 import com.example.touristsblog.ui.screen.signup.SignUpViewModel
 import com.example.touristsblog.ui.screen.login.LoginViewModel
@@ -62,6 +63,8 @@ import com.example.touristsblog.ui.screen.myposts.postslist.PostListScreen
 import com.example.touristsblog.ui.screen.myposts.postslist.PostListViewModel
 import com.example.touristsblog.ui.screen.profile.ProfileScreen
 import com.example.touristsblog.ui.screen.profile.ProfileViewModel
+import com.example.touristsblog.ui.screen.viewpost.ViewPostScreen
+import com.example.touristsblog.ui.screen.viewpost.ViewPostViewModel
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -126,6 +129,12 @@ class MainActivity : ComponentActivity() {
                             navigationController = controller
                         ) { _, vm ->
                             PostListScreen(vm)
+                        }
+                        composable<ViewPostViewModel>(
+                            route = Routes.ViewPost,
+                            navigationController = controller,
+                        ) { _, vm ->
+                            ViewPostScreen(vm)
                         }
                     }
                 }

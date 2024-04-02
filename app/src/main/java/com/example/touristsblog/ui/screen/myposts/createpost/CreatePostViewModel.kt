@@ -2,6 +2,7 @@ package com.example.touristsblog.ui.screen.myposts.createpost
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.navArgument
 import com.example.touristsblog.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +22,6 @@ class CreatePostViewModel @Inject constructor(
             PostItem.TitleItem("Заголовок", 0),
             PostItem.TextItem("Текст", 1),
             PostItem.ImageItem("", 2),
-
         )
     )
     val screenState: StateFlow<List<PostItem>>
@@ -49,5 +49,9 @@ class CreatePostViewModel @Inject constructor(
 
     fun savePost() {
 
+    }
+
+    fun goBack(){
+        navBack()
     }
 }

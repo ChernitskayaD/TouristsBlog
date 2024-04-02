@@ -2,6 +2,7 @@ package com.example.touristsblog.ui.screen.viewpost
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.compose.rememberNavController
 import com.example.touristsblog.BaseViewModel
 import com.example.touristsblog.ui.screen.myposts.createpost.PostItem
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,7 +22,7 @@ class ViewPostViewModel @Inject constructor(
         savedStateHandle.get<List<PostItem>>("screenstate") ?: listOf(
             PostItem.TitleItem("Заголовок", 0),
             PostItem.TextItem("Текст", 1),
-            PostItem.ImageItem("", 2),
+            PostItem.ImageItem("https://travelswm.com/wp-content/uploads/2018/02/Vecherom-Moskva.jpg", 2),
 
         )
     )
@@ -50,5 +51,9 @@ class ViewPostViewModel @Inject constructor(
 
     fun savePost() {
 
+    }
+
+    fun goBack(){
+        navBack()
     }
 }
