@@ -4,7 +4,7 @@ import dagger.hilt.DefineComponent
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityComponent
-import dev.marcocattaneo.androidcomposetemplate.di.scope.ComposableScope
+import com.example.touristsblog.di.scope.ComposableScope
 
 @ComposableScope
 @DefineComponent(parent = ActivityComponent::class)

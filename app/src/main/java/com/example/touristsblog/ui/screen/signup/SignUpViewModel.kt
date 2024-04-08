@@ -1,35 +1,41 @@
-/*
- * Copyright 2021 Marco Cattaneo
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.example.touristsblog.ui.screen.signup
 
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
 import com.example.touristsblog.BaseViewModel
+import com.example.touristsblog.navigation.Routes
+import com.example.touristsblog.navigation.routing.generatePath
+import com.example.touristsblog.network.SignInUseCase
+import com.example.touristsblog.network.SignUpUseCase
+import com.example.touristsblog.network.UserSignIn
+import com.example.touristsblog.network.UserSignUp
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle
-): BaseViewModel() {
+    savedStateHandle: SavedStateHandle,
+    private val signUpUseCase: SignUpUseCase,
+) : BaseViewModel() {
+    fun registration(name: String, email: String, password: String) {
+        viewModelScope.launch {
+            val result = signUpUseCase.invoke(UserSignUp(name, email, password))
+            if (result.respone != "ERROR") {
+                withContext(Dispatchers.Main) {
+                    navigateTo(
+                        Routes.Profile.generatePath()
+                    )
+                }
+            }
+        }
+    }
 
     private val mUsernameState = MutableStateFlow(savedStateHandle.get<String>("username") ?: "")
     val usernameState: StateFlow<String>
         get() = mUsernameState
-
 }

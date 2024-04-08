@@ -80,4 +80,20 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.5.0")
 
     implementation 'com.yandex.android:maps.mobile:4.5.1-lite'
+
+    def room_version = "2.6.1"
+
+    implementation "androidx.room:room-runtime:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
+
+    // To use Kotlin annotation processing tool (kapt)
+    kapt "androidx.room:room-compiler:$room_version"
+    // Retrofit 2
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    // OkHttp
+    implementation("com.squareup.okhttp3:okhttp-bom:5.0.0-alpha.7")
+    implementation("com.squareup.okhttp3:okhttp")
+    implementation("com.squareup.okhttp3:logging-interceptor")
 }

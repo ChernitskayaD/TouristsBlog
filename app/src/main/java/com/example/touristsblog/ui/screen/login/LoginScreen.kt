@@ -14,7 +14,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.touristsblog.ui.screen.login.LoginViewModel
 import com.example.touristsblog.ui.theme.TouristsBlogTheme
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -58,7 +57,7 @@ fun LoginScreen(
                 colors = textFieldColors(backgroundColor = MaterialTheme.colors.background)
             )
             Button(
-                onClick = { loginViewModel.onClickLogin() },
+                onClick = { loginViewModel.onClickLogin(email, password) },
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier
                     .fillMaxWidth()
