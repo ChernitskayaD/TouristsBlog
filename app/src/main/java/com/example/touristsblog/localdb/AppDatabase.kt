@@ -26,7 +26,6 @@ abstract class AppDatabase : RoomDatabase() {
                         AppDatabase::class.java,
                         "DB_NAME"
                     )
-                        //.createFromAsset("cities.db")
                         .fallbackToDestructiveMigration()
                         .build()
                     INSTANCE = instance
@@ -41,6 +40,7 @@ abstract class AppDatabase : RoomDatabase() {
 data class MyPostsEntity(
     @PrimaryKey
     val id: Int,
+    val author: Int,
     val date: String,
     val isOpen: Boolean,
 )

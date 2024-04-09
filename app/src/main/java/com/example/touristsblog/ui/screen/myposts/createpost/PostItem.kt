@@ -4,26 +4,15 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-sealed class PostItem(
+data class PostItem(
     val itemPosition: Int,
-) : Parcelable {
-    data class TextItem(
-        val text: String,
-        val position: Int,
-    ) : PostItem(position)
+    val value: String,
+    val itemType: ItemType
+) : Parcelable
 
-    data class TitleItem(
-        val title: String,
-        val position: Int,
-    ) : PostItem(position)
-
-    data class ImageItem(
-        val imageUri: String,
-        val position: Int,
-    ) : PostItem(position)
-
-    data class GeoItem(
-        val text: String,
-        val position: Int,
-    ) : PostItem(position)
+enum class ItemType(val typeName: String) {
+    TextItem("text"),
+    TitleItem("title"),
+    ImageItem("image"),
+    GeoItem("geo")
 }

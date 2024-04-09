@@ -2,9 +2,11 @@ package com.example.touristsblog.ui.screen.myposts.createpost
 
 import android.annotation.SuppressLint
 import android.net.Uri
+import android.os.Build
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -108,11 +110,11 @@ fun CreatePostScreen(
                 .padding(horizontal = 16.dp)
         ) {
             state.value.forEach { item ->
-                when (item) {
-                    is PostItem.GeoItem -> TextContent(viewModel, item.itemPosition)
-                    is PostItem.ImageItem -> ImagePicker(viewModel, item.itemPosition)
-                    is PostItem.TextItem -> TextContent(viewModel, item.itemPosition)
-                    is PostItem.TitleItem -> Title(viewModel, item.itemPosition)
+                when (item.itemType) {
+                    ItemType.TextItem -> TextContent(viewModel, item.itemPosition)
+                    ItemType.ImageItem -> ImagePicker(viewModel, item.itemPosition)
+                    ItemType.GeoItem -> TextContent(viewModel, item.itemPosition)
+                    ItemType.TitleItem -> Title(viewModel, item.itemPosition)
                 }
             }
             Button(
@@ -180,7 +182,9 @@ private fun TextContent(
             focusedIndicatorColor = Color.Black,
             unfocusedIndicatorColor = Color.Transparent,
         ), trailingIcon = {
-            Icon(Icons.Default.Delete, contentDescription = "", modifier = Modifier.clickable { viewModel.removeItem(itemPosition) })
+            if (itemPosition > 2) {
+                Icon(Icons.Default.Delete, contentDescription = "", modifier = Modifier.clickable { viewModel.removeItem(itemPosition) })
+            }
         }
     )
 }
@@ -271,14 +275,19 @@ fun MyAlertDialog(
                             // Обработка выбора пункта
                             Log.d("Dialog", "$item выбран")
                             // Закрытие диалогового окна
-                            val postItem = when (item) {
-                                "Заголовок" -> PostItem.TitleItem("", viewModel.getNextItemPos())
-                                "Текст" -> PostItem.TextItem("", viewModel.getNextItemPos())
-                                "Изображение" -> PostItem.ImageItem("", viewModel.getNextItemPos())
-                                "Геометка" -> PostItem.GeoItem("", viewModel.getNextItemPos())
-                                else -> null
+                            val itemType = when (item) {
+                                "Заголовок" -> ItemType.TitleItem
+                                "Текст" -> ItemType.TextItem
+                                "Изображение" -> ItemType.ImageItem
+                                "Геометка" -> ItemType.GeoItem
+                                else -> ItemType.TextItem
                             }
-                            postItem?.let { viewModel.addItem(it) }
+                            val postItem = PostItem(
+                                value = "",
+                                itemPosition = viewModel.getNextItemPos(),
+                                itemType = itemType
+                            )
+                            viewModel.addItem(postItem)
                             showDialog.value = false
                         },
                         shape = RoundedCornerShape(16.dp),

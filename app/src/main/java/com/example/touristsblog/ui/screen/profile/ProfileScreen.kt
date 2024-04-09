@@ -134,6 +134,7 @@ fun ProfileScreen(
             val point2 = Point(55.751889, 37.573967) // Замените на вашу координату
             val icon = ImageProvider.fromResource(context, R.drawable.baseline_location_on_24)
 
+
             AndroidView(
                 modifier = Modifier.height(256.dp),
                 factory = { context ->
@@ -149,7 +150,6 @@ fun ProfileScreen(
                     }
                 },
                 update = { mapView ->
-
                     // Обновление view, когда состояние Composable меняется.
                     // Например, изменение центра карты или масштаба.
                 }

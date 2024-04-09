@@ -5,10 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.touristsblog.BaseViewModel
 import com.example.touristsblog.navigation.Routes
 import com.example.touristsblog.navigation.routing.generatePath
-import com.example.touristsblog.network.SignInUseCase
-import com.example.touristsblog.network.SignUpUseCase
-import com.example.touristsblog.network.UserSignIn
-import com.example.touristsblog.network.UserSignUp
+import com.example.touristsblog.network.user.SignUpUseCase
+import com.example.touristsblog.network.user.model.UserSignUp
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,17 +23,19 @@ class SignUpViewModel @Inject constructor(
     fun registration(name: String, email: String, password: String) {
         viewModelScope.launch {
             val result = signUpUseCase.invoke(UserSignUp(name, email, password))
-            if (result.respone != "ERROR") {
+            if (result.value != null) {
                 withContext(Dispatchers.Main) {
                     navigateTo(
                         Routes.Profile.generatePath()
                     )
                 }
+            } else {
+                mErrorState.emit(result.message)
             }
         }
     }
 
-    private val mUsernameState = MutableStateFlow(savedStateHandle.get<String>("username") ?: "")
-    val usernameState: StateFlow<String>
-        get() = mUsernameState
+    private val mErrorState = MutableStateFlow(savedStateHandle.get<String>("username") ?: "")
+    val errorState: StateFlow<String>
+        get() = mErrorState
 }

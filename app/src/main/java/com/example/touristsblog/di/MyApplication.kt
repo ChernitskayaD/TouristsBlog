@@ -10,6 +10,7 @@ open class MyApplication: BaseApplication() {
     override fun onCreate() {
         super.onCreate()
         MapKitFactory.setApiKey(BuildConfig.YandexSdkApiKey)
+        MapKitFactory.initialize(this)
         /*val db = Room.databaseBuilder(
             applicationContext,
             AppDatabase::class.java, "database-name"

@@ -12,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.touristsblog.ui.theme.TouristsBlogTheme
@@ -21,7 +22,7 @@ import com.example.touristsblog.ui.theme.TouristsBlogTheme
 fun LoginScreen(
     loginViewModel: LoginViewModel
 ) {
-    val username by loginViewModel.usernameState.collectAsState()
+    val error by loginViewModel.errorState.collectAsState()
     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.SpaceAround) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(top = 44.dp)) {
             Text(
@@ -48,13 +49,18 @@ fun LoginScreen(
                 colors = textFieldColors(backgroundColor = MaterialTheme.colors.background)
             )
             var password by remember { mutableStateOf("") }
-
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
                 label = { Text("Пароль") },
                 shape = RoundedCornerShape(16.dp),
                 colors = textFieldColors(backgroundColor = MaterialTheme.colors.background)
+            )
+            Text(
+                text = error,
+                modifier = Modifier,
+                style = MaterialTheme.typography.body1,
+                color = Color.Red
             )
             Button(
                 onClick = { loginViewModel.onClickLogin(email, password) },

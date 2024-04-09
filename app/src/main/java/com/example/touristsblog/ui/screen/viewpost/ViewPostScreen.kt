@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
+import com.example.touristsblog.ui.screen.myposts.createpost.ItemType
 import com.example.touristsblog.ui.screen.myposts.createpost.PostItem
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -104,11 +105,11 @@ fun ViewPostScreen(
                 .padding(horizontal = 16.dp)
         ) {
             state.value.forEach { item ->
-                when (item) {
-                    is PostItem.GeoItem -> TextContent(item.text)
-                    is PostItem.ImageItem -> ImagePicker(item.imageUri)
-                    is PostItem.TextItem -> TextContent(item.text)
-                    is PostItem.TitleItem -> Title(item.title)
+                when (item.itemType) {
+                    ItemType.GeoItem -> TextContent(item.value)
+                    ItemType.ImageItem -> ImagePicker(item.value)
+                    ItemType.TextItem -> TextContent(item.value)
+                    ItemType.TitleItem -> Title(item.value)
                 }
             }
             Button(
@@ -204,36 +205,6 @@ fun MyAlertDialog(
         },
         text = {
             Column {
-                items.forEach { item ->
-                    Button(
-                        onClick = {
-                            // Обработка выбора пункта
-                            Log.d("Dialog", "$item выбран")
-                            // Закрытие диалогового окна
-                            val postItem = when (item) {
-                                "Заголовок" -> PostItem.TitleItem("", viewModel.getNextItemPos())
-                                "Текст" -> PostItem.TextItem("", viewModel.getNextItemPos())
-                                "Изображение" -> PostItem.ImageItem("", viewModel.getNextItemPos())
-                                "Геометка" -> PostItem.GeoItem("", viewModel.getNextItemPos())
-                                else -> null
-                            }
-                            postItem?.let { viewModel.addItem(it) }
-                            showDialog.value = false
-                        },
-                        shape = RoundedCornerShape(16.dp),
-                        modifier = Modifier
-                            .padding(vertical = 8.dp)
-                            .height(40.dp)
-                            .fillMaxWidth()
-                    ) {
-                        Text(
-                            text = item,
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            textAlign = TextAlign.Center,
-                        )
-                    }
-                }
             }
         },
         confirmButton = {},

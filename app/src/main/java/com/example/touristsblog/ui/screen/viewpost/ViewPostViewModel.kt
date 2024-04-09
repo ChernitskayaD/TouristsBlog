@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.compose.rememberNavController
 import com.example.touristsblog.BaseViewModel
+import com.example.touristsblog.ui.screen.myposts.createpost.ItemType
 import com.example.touristsblog.ui.screen.myposts.createpost.PostItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,10 +21,9 @@ class ViewPostViewModel @Inject constructor(
 
     private val mScreenState = MutableStateFlow(
         savedStateHandle.get<List<PostItem>>("screenstate") ?: listOf(
-            PostItem.TitleItem("Заголовок", 0),
-            PostItem.TextItem("Текст", 1),
-            PostItem.ImageItem("https://travelswm.com/wp-content/uploads/2018/02/Vecherom-Moskva.jpg", 2),
-
+            PostItem(value = "Заголовок", itemPosition =  0, itemType = ItemType.TitleItem),
+            PostItem(value = "Текст", itemPosition =  1, itemType = ItemType.TextItem),
+            PostItem(value = "https://travelswm.com/wp-content/uploads/2018/02/Vecherom-Moskva.jpg", itemPosition = 2, itemType = ItemType.ImageItem),
         )
     )
     val screenState: StateFlow<List<PostItem>>

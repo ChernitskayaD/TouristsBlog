@@ -1,5 +1,7 @@
 package com.example.touristsblog.network
 
+import com.example.touristsblog.network.myposts.PostsApiService
+import com.example.touristsblog.network.user.UserApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -68,7 +70,12 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideDisneyService(retrofit: Retrofit): SignInApiService {
-        return retrofit.create(SignInApiService::class.java)
+    fun provideUserService(retrofit: Retrofit): UserApiService {
+        return retrofit.create(UserApiService::class.java)
+    }
+    @Provides
+    @Singleton
+    fun providePostsService(retrofit: Retrofit): PostsApiService {
+        return retrofit.create(PostsApiService::class.java)
     }
 }
