@@ -1,9 +1,6 @@
-package com.example.touristsblog.network.myposts.model
+package com.example.touristsblog.network.myposts.model.requests
 
-import android.os.Parcelable
-import com.example.touristsblog.ui.screen.myposts.createpost.ItemType
 import com.google.gson.annotations.SerializedName
-import kotlinx.parcelize.Parcelize
 import java.time.LocalDateTime
 
 data class CreatePostDto(
@@ -14,7 +11,7 @@ data class CreatePostDto(
     @SerializedName("postPic")
     val postPic: String?,
     @SerializedName("creationDate")
-    val creationDate: LocalDateTime,
+    val creationDate: String,
     @SerializedName("postGeo")
     val postGeo: String?,
     @SerializedName("content")

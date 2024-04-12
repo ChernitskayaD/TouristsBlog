@@ -1,17 +1,15 @@
 package com.example.touristsblog.ui.screen.myposts.createpost
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.net.Uri
-import android.os.Build
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -42,13 +40,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
-import com.example.touristsblog.ui.theme.TouristsBlogTheme
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterialApi::class)
@@ -117,9 +120,10 @@ fun CreatePostScreen(
                     ItemType.TitleItem -> Title(viewModel, item.itemPosition)
                 }
             }
+            val context = LocalContext.current
             Button(
                 onClick = {
-                    viewModel.savePost()
+                    viewModel.savePost(context.filesDir)
                 },
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier
@@ -148,8 +152,16 @@ private fun Title(
 
     TextField(
         value = title,
-        modifier = Modifier.fillMaxWidth(),
-        onValueChange = { title = it },
+        modifier = Modifier
+            .fillMaxWidth()
+            .onFocusChanged {
+                if (!it.isFocused) {
+                    viewModel.updateItemValue(itemPosition, title)
+                }
+            },
+        onValueChange = {
+            title = it
+        },
         label = { Text("") },
         shape = RoundedCornerShape(16.dp),
         colors = ExposedDropdownMenuDefaults.textFieldColors(
@@ -173,8 +185,16 @@ private fun TextContent(
     var content by remember { mutableStateOf("") }
     TextField(
         value = content,
-        modifier = Modifier.fillMaxWidth(),
-        onValueChange = { content = it },
+        modifier = Modifier
+            .fillMaxWidth()
+            .onFocusChanged {
+                if (!it.isFocused) {
+                    viewModel.updateItemValue(itemPosition, content)
+                }
+            },
+        onValueChange = {
+            content = it
+        },
         label = { Text("Текст") },
         shape = RoundedCornerShape(16.dp),
         colors = ExposedDropdownMenuDefaults.textFieldColors(
@@ -198,8 +218,16 @@ private fun GeoContent(
     var content by remember { mutableStateOf("") }
     TextField(
         value = content,
-        modifier = Modifier.fillMaxWidth(),
-        onValueChange = { content = it },
+        modifier = Modifier
+            .fillMaxWidth()
+            .onFocusChanged {
+                if (!it.isFocused) {
+                    viewModel.updateItemValue(itemPosition, content)
+                }
+            },
+        onValueChange = {
+            content = it
+        },
         label = { Text("Введите адрес") },
         shape = RoundedCornerShape(16.dp),
         colors = ExposedDropdownMenuDefaults.textFieldColors(
@@ -217,11 +245,15 @@ fun ImagePicker(
     viewModel: CreatePostViewModel,
     itemPosition: Int,
 ) {
+    val context = LocalContext.current
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { uri: Uri? ->
             imageUri = uri
+            if (uri != null) {
+                viewModel.updateItemValue(itemPosition, saveFileToLocalStorage(uri, context))
+            }
         }
     )
 
@@ -248,6 +280,28 @@ fun ImagePicker(
                 .clickable { viewModel.removeItem(itemPosition) })
 
     }
+}
+
+private fun saveFileToLocalStorage(uri: Uri, context: Context): String {
+    val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
+    var outputStream: OutputStream? = null
+    var savedFilePath = ""
+
+    try {
+        val fileName = System.currentTimeMillis().toString() // Генерируем уникальное имя файла
+        val file = File(context.filesDir, fileName)
+        outputStream = FileOutputStream(file)
+        savedFilePath = fileName//file.absolutePath
+
+        inputStream?.copyTo(outputStream) ?: throw IOException("Не удалось сохранить файл")
+    } catch (e: IOException) {
+        e.printStackTrace()
+    } finally {
+        inputStream?.close()
+        outputStream?.close()
+    }
+
+    return savedFilePath
 }
 
 @Composable

@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,16 +25,14 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.lifecycleScope
 import coil.compose.AsyncImage
 import com.example.touristsblog.R
-import com.example.touristsblog.ui.theme.TouristsBlogTheme
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraPosition
-import com.yandex.mapkit.map.IconStyle
 import com.yandex.mapkit.mapview.MapView
 import com.yandex.runtime.image.ImageProvider
 
@@ -43,7 +42,11 @@ fun ProfileScreen(
     viewModel: ProfileViewModel
 ) {
     //val username by viewModel.usernameState.collectAsState()
-    MapKitFactory.initialize(LocalContext.current)
+    val context = LocalContext.current
+    LaunchedEffect(true) {
+        //MapKitFactory.initialize(context)
+        MapKitFactory.getInstance().onStart()
+    }
 
     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.SpaceAround) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(top = 44.dp)) {
@@ -146,6 +149,7 @@ fun ProfileScreen(
                         val mapObjects = mapWindow.map.mapObjects
                         mapObjects.addPlacemark(point)
                         mapObjects.addPlacemark(point2)
+                        onStart()
                         // Вы можете обращаться к карте здесь для настройки
                     }
                 },

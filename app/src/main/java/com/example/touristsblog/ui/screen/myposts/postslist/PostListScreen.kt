@@ -2,6 +2,7 @@ package com.example.touristsblog.ui.screen.myposts.postslist
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -31,7 +32,7 @@ fun PostListScreen(
                 style = MaterialTheme.typography.h1,
             )
         }
-        Column(
+        LazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .padding(bottom = 60.dp, top = 24.dp)
@@ -40,16 +41,18 @@ fun PostListScreen(
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             screenState.forEach {
-                PostCard(it, viewModel)
+                item { PostCard(it, viewModel) }
             }
-            Button(
-                onClick = { viewModel.onClickCreateNewPost() },
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp)
-            ) {
-                Text(text = "Создать новый пост")
+            item {
+                Button(
+                    onClick = { viewModel.onClickCreateNewPost() },
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                ) {
+                    Text(text = "Создать новый пост")
+                }
             }
         }
     }

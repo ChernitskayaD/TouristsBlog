@@ -1,24 +1,24 @@
 package com.example.touristsblog.ui.screen.myposts.createpost
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.navArgument
 import com.example.touristsblog.BaseViewModel
 import com.example.touristsblog.network.myposts.CreatePostUseCase
-import com.example.touristsblog.network.myposts.model.CreatePostDto
-import com.example.touristsblog.network.myposts.model.PostItemDto
+import com.example.touristsblog.network.myposts.model.requests.CreatePostDto
+import com.example.touristsblog.network.myposts.model.requests.PostItemDto
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import java.time.LocalDate
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import java.io.File
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -62,8 +62,8 @@ class CreatePostViewModel @Inject constructor(
         val tmp = mScreenState.value.toMutableList()
         val item = tmp.find { it.itemPosition == itemPosition }?.copy(value = value)
         if (item != null) {
-            removeItem(itemPosition)
-            addItem(item)
+            tmp.removeIf { it.itemPosition == itemPosition }
+            tmp.add(item)
         }
 
         viewModelScope.launch {
@@ -75,7 +75,7 @@ class CreatePostViewModel @Inject constructor(
         return lastItemPos++
     }
 
-    fun savePost() {
+    fun savePost(filesDir: File) {
         viewModelScope.launch {
             val newPost = CreatePostDto(
                 authorId = prefs.data.map {
@@ -83,10 +83,22 @@ class CreatePostViewModel @Inject constructor(
                 }.first() ?: 0,
                 postTitle = mScreenState.value[0].value,
                 postPic = mScreenState.value[2].value,
-                creationDate = LocalDateTime.now(),
-                postGeo = mScreenState.value.firstOrNull { it.itemType == ItemType.GeoItem }?.value,
+                creationDate = LocalDateTime.now().toString(),
+                postGeo = mScreenState.value.firstOrNull { it.itemType == ItemType.GeoItem }?.value ?: "test",
                 content = screenState.value.map {
-                    PostItemDto(it.itemPosition, it.value, it.itemType.typeName)
+                    if(it.itemType == ItemType.ImageItem){
+
+                        val file = File(filesDir, it.value)
+                        val requestFile = RequestBody.create("image/jpeg".toMediaTypeOrNull(), file)
+
+                        // MultipartBody.Part используется, чтобы отправить также название файла
+                        val body = MultipartBody.Part.createFormData("picture", file.name, requestFile)
+
+                        val savedFile = createPostUseCase.invoke(body)
+                        PostItemDto(it.itemPosition, savedFile, it.itemType.typeName)
+                    } else {
+                        PostItemDto(it.itemPosition, it.value, it.itemType.typeName)
+                    }
                 }
             )
             createPostUseCase.invoke(newPost)

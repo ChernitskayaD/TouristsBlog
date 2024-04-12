@@ -1,31 +1,48 @@
 package com.example.touristsblog.ui.screen.myposts.postslist
 
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.viewModelScope
 import com.example.touristsblog.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import com.example.touristsblog.navigation.routing.generatePath
 import com.example.touristsblog.navigation.Routes
+import com.example.touristsblog.network.myposts.CreatePostUseCase
+import com.example.touristsblog.network.myposts.MyPostsUseCase
+import com.example.touristsblog.network.myposts.model.requests.MyPostsRequest
+import com.example.touristsblog.network.myposts.model.response.ShortPlaceInfo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class PostListViewModel @Inject constructor() : BaseViewModel() {
-
+class PostListViewModel @Inject constructor(
+    private val myPostsUseCase: MyPostsUseCase,
+    private val prefs: DataStore<Preferences>,
+) : BaseViewModel() {
+    private val userSessionKey = stringPreferencesKey("user_session")
+    val defaultImage = "https://travelswm.com/wp-content/uploads/2018/02/Vecherom-Moskva.jpg"
     private val mPostsState = MutableStateFlow(
         listOf<PostPreview>(
             PostPreview(
                 postId = "test",
                 postTitle = "TEST TITLE",
                 postGeo = "Moscow, Dom 1",
-                postImage = "https://travelswm.com/wp-content/uploads/2018/02/Vecherom-Moskva.jpg",
+                postImage = defaultImage,
                 creationDate = "01.01.2024",
             )
         )
     )
     val postsSate: StateFlow<List<PostPreview>>
         get() = mPostsState
+
+    init {
+        getMyPosts()
+    }
 
     fun addItem(item: PostPreview) {
         val tmp = mPostsState.value.toMutableList()
@@ -43,7 +60,7 @@ class PostListViewModel @Inject constructor() : BaseViewModel() {
         }
     }
 
-    fun openPost(postId: String){
+    fun openPost(postId: String) {
         viewModelScope.launch {
             navigateTo(
                 Routes.ViewPost.generatePath(
@@ -52,6 +69,31 @@ class PostListViewModel @Inject constructor() : BaseViewModel() {
             )
         }
     }
+
+    fun getMyPosts() {
+        viewModelScope.launch {
+            val authorId = prefs.data.map {
+                it[userSessionKey]?.toInt()
+            }.first() ?: 0
+            val posts = myPostsUseCase.invoke(MyPostsRequest(authorId))
+            posts.posts.forEach {
+                addItem(it.mapPost())
+            }
+        }
+    }
+
+    fun ShortPlaceInfo.mapPost() = PostPreview(
+        postId = postId.toString(),
+        postTitle = postTitle,
+        postGeo = postGeo,
+        postImage = if (postPic.isNotBlank()) {
+            "https://turblogbek-rodya.amvera.io/image/$postPic"
+        } else {
+            defaultImage
+        },
+        creationDate = creationDate
+    )
+
     fun onClickCreateNewPost() = viewModelScope.launch {
         navigateTo(
             Routes.CreatePost.generatePath()

@@ -9,7 +9,7 @@ import dagger.hilt.android.HiltAndroidApp
 open class MyApplication: BaseApplication() {
     override fun onCreate() {
         super.onCreate()
-        MapKitFactory.setApiKey(BuildConfig.YandexSdkApiKey)
+        MapKitFactory.setApiKey("dd9ee03f-7844-466a-b36d-e4bc1bdc3924\n")
         MapKitFactory.initialize(this)
         /*val db = Room.databaseBuilder(
             applicationContext,

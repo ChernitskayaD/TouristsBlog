@@ -128,6 +128,17 @@ fun ViewPostScreen(
                         .fillMaxWidth(),
                     textAlign = TextAlign.Center,
                 )
+            }
+            Button(
+                onClick = {
+                    viewModel.savePost()
+                },
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier
+                    .padding(16.dp)
+                    .height(50.dp)
+                    .fillMaxWidth()
+            ) {
                 Text(
                     text = "Удалить",
                     modifier = Modifier
