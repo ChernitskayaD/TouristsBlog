@@ -78,4 +78,9 @@ object NetworkModule {
     fun providePostsService(retrofit: Retrofit): PostsApiService {
         return retrofit.create(PostsApiService::class.java)
     }
+    @Provides
+    @Singleton
+    fun provideDadataService(retrofit: Retrofit): DadataApiService {
+        return retrofit.create(DadataApiService::class.java)
+    }
 }

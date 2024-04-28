@@ -10,6 +10,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -40,9 +41,6 @@ fun PostListScreen(
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            screenState.forEach {
-                item { PostCard(it, viewModel) }
-            }
             item {
                 Button(
                     onClick = { viewModel.onClickCreateNewPost() },
@@ -52,6 +50,21 @@ fun PostListScreen(
                         .height(50.dp)
                 ) {
                     Text(text = "Создать новый пост")
+                }
+            }
+            if (screenState.isEmpty()) {
+                item { Text(text = "У вас пока нет постов") }
+            }
+            screenState.forEach {
+                item { PostCard(it, viewModel) }
+            }
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(20.dp)
+                ) {
+
                 }
             }
         }
@@ -71,6 +84,8 @@ fun PostCard(item: PostPreview, viewModel: PostListViewModel) {
             AsyncImage(
                 model = item.postImage,
                 contentDescription = "",
+                modifier = Modifier.height(200.dp),
+                contentScale = ContentScale.FillWidth
             )
             item.postTitle?.let {
                 Text(

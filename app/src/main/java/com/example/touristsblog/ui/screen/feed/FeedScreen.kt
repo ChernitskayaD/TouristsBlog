@@ -1,6 +1,7 @@
 package com.example.touristsblog.ui.screen.feed
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.ExposedDropdownMenuDefaults.textFieldColors
@@ -15,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -38,7 +40,7 @@ fun FeedScreen(
                 style = MaterialTheme.typography.h1,
             )
         }
-        Column(
+        LazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .padding(bottom = 60.dp, top = 24.dp)
@@ -46,27 +48,22 @@ fun FeedScreen(
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            Button(
-                onClick = { viewModel.onClickCreateNewPost() },
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp)
-            ) {
-                Text(text = "Создать новый пост")
+            item {
+                Button(
+                    onClick = { viewModel.onClickCreateNewPost() },
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                ) {
+                    Text(text = "Создать новый пост")
+                }
             }
-            /*Button(
-                onClick = { viewModel.onClickCreateNewPost() },
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp)
-            ) {
-                Text(text = "Открыть для всех свой пост")
-            }*/
-
+            if (screenState.isEmpty()) {
+                item { Text(text = "Никто не открыл свой пост для обещего доступа - будьте первыми.") }
+            }
             screenState.forEach {
-                FeedPostCard(it, viewModel)
+                item { FeedPostCard(it, viewModel) }
             }
         }
     }
@@ -82,6 +79,8 @@ fun FeedPostCard(item: FeedPostPreview, viewModel: FeedViewModel) {
             AsyncImage(
                 model = item.postImage,
                 contentDescription = "",
+                modifier = Modifier.height(200.dp),
+                contentScale = ContentScale.FillWidth
             )
             item.postTitle?.let {
                 Text(

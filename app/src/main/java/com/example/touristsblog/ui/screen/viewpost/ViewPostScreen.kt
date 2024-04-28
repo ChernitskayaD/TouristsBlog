@@ -104,7 +104,7 @@ fun ViewPostScreen(
             verticalArrangement = Arrangement.spacedBy(20.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = 16.dp, vertical = 24.dp)
         ) {
             state.value.forEach { item ->
                 when (item.itemType) {
@@ -125,7 +125,7 @@ fun ViewPostScreen(
                     .fillMaxWidth()
             ) {
                 Text(
-                    text = if (!openState.value) {
+                    text = if (openState.value) {
                         "Сделать недоступным для всех"
                     } else {
                         "Сделать доступным для всех"
@@ -196,7 +196,7 @@ fun ImagePicker(
     imageUrl: String,
 ) {
     AsyncImage(
-        model = imageUrl,
+        model = "https://turblogbek-rodya.amvera.io/image/$imageUrl",
         contentDescription = null,
         modifier = Modifier.fillMaxWidth(),
         contentScale = ContentScale.Fit

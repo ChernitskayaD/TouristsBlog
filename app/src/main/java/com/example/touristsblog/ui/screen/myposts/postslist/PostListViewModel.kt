@@ -26,16 +26,9 @@ class PostListViewModel @Inject constructor(
     private val prefs: DataStore<Preferences>,
 ) : BaseViewModel() {
     private val userSessionKey = stringPreferencesKey("user_session")
-    val defaultImage = "https://travelswm.com/wp-content/uploads/2018/02/Vecherom-Moskva.jpg"
+    private val defaultImage = "https://travelswm.com/wp-content/uploads/2018/02/Vecherom-Moskva.jpg"
     private val mPostsState = MutableStateFlow(
         listOf<PostPreview>(
-            PostPreview(
-                postId = "test",
-                postTitle = "TEST TITLE",
-                postGeo = "Moscow, Dom 1",
-                postImage = defaultImage,
-                creationDate = "01.01.2024",
-            )
         )
     )
     val postsSate: StateFlow<List<PostPreview>>
@@ -71,19 +64,21 @@ class PostListViewModel @Inject constructor(
         }
     }
 
-    fun getMyPosts() {
+    private fun getMyPosts() {
         viewModelScope.launch {
             val authorId = prefs.data.map {
                 it[userSessionKey]
             }.firstOrNull() ?: "0"
-            val posts = myPostsUseCase.invoke(MyPostsRequest(authorId.toInt()))
-            posts.posts.forEach {
-                addItem(it.mapPost())
+            authorId.toIntOrNull()?.let { id ->
+                val posts = myPostsUseCase.invoke(MyPostsRequest(id))
+                posts.posts.forEach {
+                    addItem(it.mapPost())
+                }
             }
         }
     }
 
-    fun ShortPlaceInfo.mapPost() = PostPreview(
+    private fun ShortPlaceInfo.mapPost() = PostPreview(
         postId = postId.toString(),
         postTitle = postTitle,
         postGeo = postGeo,

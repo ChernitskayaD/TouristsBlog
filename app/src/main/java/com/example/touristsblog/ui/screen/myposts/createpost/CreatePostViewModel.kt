@@ -6,6 +6,8 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.example.touristsblog.BaseViewModel
+import com.example.touristsblog.network.DadataBody
+import com.example.touristsblog.network.DadataUseCase
 import com.example.touristsblog.network.myposts.CreatePostUseCase
 import com.example.touristsblog.network.myposts.model.requests.CreatePostDto
 import com.example.touristsblog.network.myposts.model.requests.PostItemDto
@@ -26,6 +28,7 @@ import javax.inject.Inject
 class CreatePostViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val createPostUseCase: CreatePostUseCase,
+    private val dadataUseCase: DadataUseCase,
     private val prefs: DataStore<Preferences>,
 ) : BaseViewModel() {
     private val userSessionKey = stringPreferencesKey("user_session")
@@ -37,11 +40,26 @@ class CreatePostViewModel @Inject constructor(
             PostItem(value = "Заголовок", itemPosition = 0, itemType = ItemType.TitleItem),
             PostItem(value = "Текст", itemPosition = 1, itemType = ItemType.TextItem),
             PostItem(value = "", itemPosition = 2, itemType = ItemType.ImageItem),
+            PostItem(value = "", itemPosition = 3, itemType = ItemType.GeoItem),
         )
     )
     val screenState: StateFlow<List<PostItem>>
         get() = mScreenState
 
+    private val mAddressesState = MutableStateFlow(
+        listOf("")
+    )
+    val addressState: StateFlow<List<String>>
+        get() = mAddressesState
+
+    fun searchAddress(query: String){
+        viewModelScope.launch {
+            val result = dadataUseCase.invoke(DadataBody(query, 5))
+            mAddressesState.value = result.suggestions.map {
+                it.unrestrictedValue
+            }
+        }
+    }
     fun addItem(item: PostItem) {
         val tmp = mScreenState.value.toMutableList()
         tmp.add(item)
@@ -87,7 +105,7 @@ class CreatePostViewModel @Inject constructor(
                 postTitle = mScreenState.value[0].value,
                 postPic = mScreenState.value[2].value,
                 creationDate = LocalDateTime.now().toString(),
-                postGeo = mScreenState.value.firstOrNull { it.itemType == ItemType.GeoItem }?.value ?: "test",
+                postGeo = mScreenState.value[3].value,
                 content = screenState.value.map {
                     if(it.itemType == ItemType.ImageItem){
 
@@ -105,11 +123,9 @@ class CreatePostViewModel @Inject constructor(
                 }
             )
             createPostUseCase.invoke(newPost)
+        }.invokeOnCompletion {
+            navBack()
         }
-    }
-
-    fun goBack() {
-        navBack()
     }
 }
 

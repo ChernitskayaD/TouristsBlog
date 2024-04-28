@@ -145,7 +145,6 @@ fun ProfileScreen(
             val point = Point(55.751574, 37.573856) // Замените на вашу координату
             val point2 = Point(53.751889, 35.573967) // Замените на вашу координату
             val icon = ImageProvider.fromResource(context, R.drawable.baseline_location_on_24)
-
             AndroidView(
                 modifier = Modifier.height(356.dp),
                 factory = { context ->

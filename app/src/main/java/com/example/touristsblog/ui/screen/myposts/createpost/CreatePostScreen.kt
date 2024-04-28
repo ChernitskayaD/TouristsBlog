@@ -17,8 +17,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
+import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ExposedDropdownMenuDefaults
 import androidx.compose.material.FloatingActionButton
@@ -31,6 +33,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
@@ -39,11 +42,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
@@ -116,7 +122,7 @@ fun CreatePostScreen(
                 when (item.itemType) {
                     ItemType.TextItem -> TextContent(viewModel, item.itemPosition)
                     ItemType.ImageItem -> ImagePicker(viewModel, item.itemPosition)
-                    ItemType.GeoItem -> TextContent(viewModel, item.itemPosition)
+                    ItemType.GeoItem -> GeoContent(viewModel, item.itemPosition)
                     ItemType.TitleItem -> Title(viewModel, item.itemPosition)
                 }
             }
@@ -216,28 +222,52 @@ private fun GeoContent(
     itemPosition: Int,
 ) {
     var content by remember { mutableStateOf("") }
-    TextField(
-        value = content,
-        modifier = Modifier
-            .fillMaxWidth()
-            .onFocusChanged {
-                if (!it.isFocused) {
-                    viewModel.updateItemValue(itemPosition, content)
+    var focus by remember { mutableStateOf(false) }
+    val geoSearchState by viewModel.addressState.collectAsState()
+    Row {
+        Icon(Icons.Default.Place, contentDescription = "", modifier = Modifier.align(CenterVertically))
+        TextField(
+            value = content,
+            modifier = Modifier
+                .fillMaxWidth()
+                .onFocusChanged {
+                    focus = it.isFocused
+                    if (!it.isFocused) {
+                        viewModel.updateItemValue(itemPosition, content)
+                    }
+                },
+            onValueChange = {
+                content = it
+                if (it.length > 3) {
+                    viewModel.searchAddress(it)
                 }
             },
-        onValueChange = {
-            content = it
-        },
-        label = { Text("Введите адрес") },
-        shape = RoundedCornerShape(16.dp),
-        colors = ExposedDropdownMenuDefaults.textFieldColors(
-            backgroundColor = MaterialTheme.colors.background,
-            focusedIndicatorColor = Color.Black,
-            unfocusedIndicatorColor = Color.Transparent,
-        ), trailingIcon = {
-            Icon(Icons.Default.Delete, contentDescription = "", modifier = Modifier.clickable { viewModel.removeItem(itemPosition) })
+            label = { Text("Введите адрес") },
+            shape = RoundedCornerShape(16.dp),
+            colors = ExposedDropdownMenuDefaults.textFieldColors(
+                backgroundColor = MaterialTheme.colors.background,
+                focusedIndicatorColor = Color.Black,
+                unfocusedIndicatorColor = Color.Transparent,
+            ), trailingIcon = {
+                Icon(Icons.Default.Delete, contentDescription = "", modifier = Modifier.clickable { viewModel.removeItem(itemPosition) })
+            }
+        )
+    }
+    if (content.isNotEmpty() && focus) {
+        geoSearchState.forEach { suggestion ->
+            ClickableText(
+                text = AnnotatedString(suggestion),
+                onClick = {
+                    content = suggestion
+                },
+                style = TextStyle.Default.copy(color = Color.Black),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+            )
+            Divider(color = Color.LightGray)
         }
-    )
+    }
 }
 
 @Composable
@@ -291,7 +321,7 @@ private fun saveFileToLocalStorage(uri: Uri, context: Context): String {
         val fileName = System.currentTimeMillis().toString() // Генерируем уникальное имя файла
         val file = File(context.filesDir, fileName)
         outputStream = FileOutputStream(file)
-        savedFilePath = fileName//file.absolutePath
+        savedFilePath = fileName //file.absolutePath
 
         inputStream?.copyTo(outputStream) ?: throw IOException("Не удалось сохранить файл")
     } catch (e: IOException) {
@@ -310,7 +340,7 @@ fun MyAlertDialog(
     viewModel: CreatePostViewModel,
 ) {
     // Создаем список пунктов
-    val items = listOf("Заголовок", "Текст", "Изображение", "Геометка")
+    val items = listOf("Заголовок", "Текст", "Изображение")
 
     AlertDialog(
         backgroundColor = MaterialTheme.colors.background,
@@ -333,7 +363,6 @@ fun MyAlertDialog(
                                 "Заголовок" -> ItemType.TitleItem
                                 "Текст" -> ItemType.TextItem
                                 "Изображение" -> ItemType.ImageItem
-                                "Геометка" -> ItemType.GeoItem
                                 else -> ItemType.TextItem
                             }
                             val postItem = PostItem(
