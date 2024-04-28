@@ -1,5 +1,6 @@
 package com.example.touristsblog.ui.screen.login
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -34,7 +35,7 @@ fun LoginScreen(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .padding(bottom = 60.dp)
+                .padding(bottom = 60.dp, top = 24.dp)
                 .padding(horizontal = 24.dp)
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(20.dp)
@@ -81,6 +82,13 @@ fun LoginScreen(
             ) {
                 Text(text = "Нет аккаунта? Зарегистрироваться")
             }
+            Text(
+                text = "Забыли пароль? Восстановить",
+                modifier = Modifier.clickable {
+
+                },
+                style = MaterialTheme.typography.h2,
+            )
         }
     }
 }

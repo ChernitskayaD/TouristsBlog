@@ -1,7 +1,9 @@
 package com.example.touristsblog.ui.screen.profile
 
+import android.graphics.PointF
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -12,6 +14,7 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,9 +33,11 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.lifecycleScope
 import coil.compose.AsyncImage
 import com.example.touristsblog.R
+import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraPosition
+import com.yandex.mapkit.map.IconStyle
 import com.yandex.mapkit.mapview.MapView
 import com.yandex.runtime.image.ImageProvider
 
@@ -120,7 +125,10 @@ fun ProfileScreen(
                     verticalArrangement = Arrangement.Center,
                     modifier = Modifier
                         .weight(1f)
-                        .align(Alignment.CenterVertically),
+                        .align(Alignment.CenterVertically)
+                        .clickable {
+                            viewModel.onExitClick()
+                        },
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
@@ -132,28 +140,30 @@ fun ProfileScreen(
             }
 
             val context = LocalContext.current
+            var mapView by rememberMapView()
 
             val point = Point(55.751574, 37.573856) // Замените на вашу координату
-            val point2 = Point(55.751889, 37.573967) // Замените на вашу координату
+            val point2 = Point(53.751889, 35.573967) // Замените на вашу координату
             val icon = ImageProvider.fromResource(context, R.drawable.baseline_location_on_24)
 
-
             AndroidView(
-                modifier = Modifier.height(256.dp),
+                modifier = Modifier.height(356.dp),
                 factory = { context ->
-                    // Создание MapView
-                    MapView(context).apply {
-                        mapWindow.map.move(
-                            CameraPosition(Point(55.751574, 37.573856), 11.0f, 0.0f, 0.0f)
+                    if (mapView == null) MapView(context).also {
+                        mapView = it
+                    } else mapView!!
+                },
+                update = { mapView ->
+                    mapView.apply {
+                        // Дополнительные настройки MapView, если необходимо
+                        mapView.map?.move(
+                            CameraPosition(Point(55.751574, 37.573856), 11.0f, 0.0f, 0.0f),
+                            Animation(Animation.Type.SMOOTH, 300f), null
                         )
                         val mapObjects = mapWindow.map.mapObjects
                         mapObjects.addPlacemark(point)
                         mapObjects.addPlacemark(point2)
-                        onStart()
-                        // Вы можете обращаться к карте здесь для настройки
                     }
-                },
-                update = { mapView ->
                     // Обновление view, когда состояние Composable меняется.
                     // Например, изменение центра карты или масштаба.
                 }
@@ -161,4 +171,10 @@ fun ProfileScreen(
 
         }
     }
+}
+
+@Composable
+fun rememberMapView(): MutableState<MapView?> {
+    val context = LocalContext.current
+    return remember { mutableStateOf(null) }
 }

@@ -82,7 +82,7 @@ fun CreatePostScreen(
                         .padding(start = 16.dp)
                         .padding(vertical = 10.dp)
                         .clickable {
-                            viewModel.goBack()
+                            viewModel.navBack()
                         }
                 )
                 Text(

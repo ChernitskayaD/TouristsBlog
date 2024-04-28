@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
 import androidx.navigation.NavType
+import com.example.touristsblog.navigation.routing.ArgumentOptions
 import com.example.touristsblog.navigation.routing.ScreenRoute
 
 object Routes {
@@ -61,6 +62,11 @@ object Routes {
     )
 
     object ViewPost : ScreenRoute(
-        routeDefinition = Definition("ViewPost"),
+        routeDefinition = Definition(
+            "ViewPost",
+            argumentKeys = listOf(
+                "postId" to { type = NavType.StringType; optional = false }
+            )
+        )
     )
 }

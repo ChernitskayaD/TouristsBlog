@@ -16,6 +16,7 @@ abstract class BaseViewModel : ViewModel() {
     fun navBack(){
         mNavigationController?.getNavController()?.navigateUp()
     }
+
     /**
      * Navigate to the [destinationRoute]
      * @param destinationRoute destination

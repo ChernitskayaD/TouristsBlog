@@ -5,27 +5,49 @@ import com.example.touristsblog.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import com.example.touristsblog.navigation.routing.generatePath
 import com.example.touristsblog.navigation.Routes
+import com.example.touristsblog.network.feed.FeedUseCase
+import com.example.touristsblog.network.myposts.model.requests.MyPostsRequest
+import com.example.touristsblog.network.myposts.model.response.ShortPlaceInfo
 import com.example.touristsblog.ui.screen.myposts.postslist.PostPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class FeedViewModel @Inject constructor() : BaseViewModel() {
+class FeedViewModel @Inject constructor(
+    private val feedUseCase: FeedUseCase,
+) : BaseViewModel() {
 
     private val mPostsState = MutableStateFlow(
-        listOf<FeedPostPreview>(
-            FeedPostPreview(
-                postId = "test",
-                postTitle = "TEST TITLE",
-                postGeo = "Moscow, Dom 1",
-                postImage = "https://travelswm.com/wp-content/uploads/2018/02/Vecherom-Moskva.jpg",
-                creationDate = "01.01.2024",
-                author = "Test testov"
-            )
-        )
+        listOf<FeedPostPreview>()
     )
+    private val defaultImage = "https://travelswm.com/wp-content/uploads/2018/02/Vecherom-Moskva.jpg"
+
+    init {
+        viewModelScope.launch {
+            val posts = feedUseCase.invoke()
+            posts.posts.forEach {
+                addItem(it.mapPost())
+            }
+        }
+    }
+
+    private fun ShortPlaceInfo.mapPost() = FeedPostPreview(
+        postId = postId.toString(),
+        postTitle = postTitle,
+        postGeo = postGeo,
+        postImage = if (postPic.isNotBlank()) {
+            "https://turblogbek-rodya.amvera.io/image/$postPic"
+        } else {
+            defaultImage
+        },
+        creationDate = creationDate,
+        author = authorName
+    )
+
     val postsSate: StateFlow<List<FeedPostPreview>>
         get() = mPostsState
 

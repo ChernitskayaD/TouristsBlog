@@ -1,11 +1,17 @@
 package com.example.touristsblog.network.myposts.model.response
 
 import com.google.gson.annotations.SerializedName
-import java.time.LocalDateTime
 
 data class PostListResponse(
     @SerializedName("posts")
     val posts: List<ShortPlaceInfo>
+)
+
+data class PostResponse(
+    @SerializedName("content")
+    val content: List<PostItem>,
+    @SerializedName("isOpen")
+    val isOpen: Boolean
 )
 
 data class ShortPlaceInfo(

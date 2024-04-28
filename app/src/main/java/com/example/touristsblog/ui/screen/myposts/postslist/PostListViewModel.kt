@@ -15,6 +15,7 @@ import com.example.touristsblog.network.myposts.model.response.ShortPlaceInfo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -73,9 +74,9 @@ class PostListViewModel @Inject constructor(
     fun getMyPosts() {
         viewModelScope.launch {
             val authorId = prefs.data.map {
-                it[userSessionKey]?.toInt()
-            }.first() ?: 0
-            val posts = myPostsUseCase.invoke(MyPostsRequest(authorId))
+                it[userSessionKey]
+            }.firstOrNull() ?: "0"
+            val posts = myPostsUseCase.invoke(MyPostsRequest(authorId.toInt()))
             posts.posts.forEach {
                 addItem(it.mapPost())
             }

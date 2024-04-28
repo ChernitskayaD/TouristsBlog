@@ -1,9 +1,17 @@
 package com.example.touristsblog.ui.screen.viewpost
 
+import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.compose.rememberNavController
 import com.example.touristsblog.BaseViewModel
+import com.example.touristsblog.network.DeletePostUseCase
+import com.example.touristsblog.network.GetPostsUseCase
+import com.example.touristsblog.network.UpdateVisibilityPostsUseCase
+import com.example.touristsblog.network.model.GetPostDto
+import com.example.touristsblog.network.model.IsVisibleDto
+import com.example.touristsblog.network.myposts.CreatePostUseCase
 import com.example.touristsblog.ui.screen.myposts.createpost.ItemType
 import com.example.touristsblog.ui.screen.myposts.createpost.PostItem
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,46 +22,56 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ViewPostViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
+    private val getPostUseCase: GetPostsUseCase,
+    private val updateVisibilityPostsUseCase: UpdateVisibilityPostsUseCase,
+    private val deletePostUseCase: DeletePostUseCase,
 ) : BaseViewModel() {
 
-    private var lastItemPos = 2
+    private val postId = savedStateHandle.get<String>("postId") ?: ""
+    var isOpen = MutableStateFlow(false)
+    private val mScreenState = MutableStateFlow(listOf<PostItem>())
 
-    private val mScreenState = MutableStateFlow(
-        savedStateHandle.get<List<PostItem>>("screenstate") ?: listOf(
-            PostItem(value = "Заголовок", itemPosition =  0, itemType = ItemType.TitleItem),
-            PostItem(value = "Текст", itemPosition =  1, itemType = ItemType.TextItem),
-            PostItem(value = "https://travelswm.com/wp-content/uploads/2018/02/Vecherom-Moskva.jpg", itemPosition = 2, itemType = ItemType.ImageItem),
-        )
-    )
+    init {
+        Log.i("TEST", postId)
+        viewModelScope.launch {
+            val response = getPostUseCase.invoke(GetPostDto(postId))
+            isOpen.value = response.isOpen
+            val content = response
+                .content.map {
+                    PostItem(
+                        itemPosition = it.itemPosition, value = it.value, itemType = when (it.itemType) {
+                            "Заголовок" -> ItemType.TitleItem
+                            "Текст" -> ItemType.TextItem
+                            "Изображение" -> ItemType.ImageItem
+                            "Геометка" -> ItemType.GeoItem
+                            else -> ItemType.TextItem
+                        }
+                    )
+                }
+            mScreenState.emit(content)
+        }
+    }
+
     val screenState: StateFlow<List<PostItem>>
         get() = mScreenState
 
-    fun addItem(item: PostItem) {
-        val tmp = mScreenState.value.toMutableList()
-        tmp.add(item)
+    fun deletePost() {
         viewModelScope.launch {
-            mScreenState.emit(tmp.toList())
+            deletePostUseCase.invoke(GetPostDto(postId))
+        }.invokeOnCompletion { navBack() }
+    }
+
+    fun changePostVisibility() {
+        viewModelScope.launch {
+            val result = updateVisibilityPostsUseCase.invoke(IsVisibleDto(postId, !isOpen.value))
+            if (result.value != null) {
+                isOpen.value = !isOpen.value
+            }
         }
     }
 
-    fun removeItem(itemPosition: Int) {
-        val tmp = mScreenState.value.toMutableList()
-        tmp.removeIf { it.itemPosition == itemPosition }
-        viewModelScope.launch {
-            mScreenState.emit(tmp.toList())
-        }
-    }
-
-    fun getNextItemPos(): Int {
-        return lastItemPos++
-    }
-
-    fun savePost() {
-
-    }
-
-    fun goBack(){
+    fun goBack() {
         navBack()
     }
 }

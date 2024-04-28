@@ -1,5 +1,9 @@
 package com.example.touristsblog.ui.screen.profile
 
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.viewModelScope
 import com.example.touristsblog.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -11,7 +15,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ProfileViewModel @Inject constructor() : BaseViewModel() {
+class ProfileViewModel @Inject constructor(
+    private val prefs: DataStore<Preferences>,
+) : BaseViewModel() {
+    private val userSessionKey = stringPreferencesKey("user_session")
 
     private val mUsernameState = MutableStateFlow("")
     val usernameState: StateFlow<String>
@@ -21,13 +28,12 @@ class ProfileViewModel @Inject constructor() : BaseViewModel() {
         mUsernameState.value = username
     }
 
-    fun onClickLogin() = viewModelScope.launch {
+    fun onExitClick() = viewModelScope.launch {
+        prefs.edit {
+            it[userSessionKey] = ""
+        }
         navigateTo(
-            Routes.CreatePost.generatePath())
-    }
-    fun onClickSignUp() = viewModelScope.launch {
-        navigateTo(
-            Routes.SignUp.generatePath()
+            Routes.Greetings.generatePath()
         )
     }
 }

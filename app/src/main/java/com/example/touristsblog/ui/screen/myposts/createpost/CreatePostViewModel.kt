@@ -45,6 +45,7 @@ class CreatePostViewModel @Inject constructor(
     fun addItem(item: PostItem) {
         val tmp = mScreenState.value.toMutableList()
         tmp.add(item)
+        tmp.sortBy { it.itemPosition }
         viewModelScope.launch {
             mScreenState.emit(tmp.toList())
         }
@@ -53,6 +54,8 @@ class CreatePostViewModel @Inject constructor(
     fun removeItem(itemPosition: Int) {
         val tmp = mScreenState.value.toMutableList()
         tmp.removeIf { it.itemPosition == itemPosition }
+        tmp.sortBy { it.itemPosition }
+
         viewModelScope.launch {
             mScreenState.emit(tmp.toList())
         }
@@ -65,7 +68,7 @@ class CreatePostViewModel @Inject constructor(
             tmp.removeIf { it.itemPosition == itemPosition }
             tmp.add(item)
         }
-
+        tmp.sortBy { it.itemPosition }
         viewModelScope.launch {
             mScreenState.emit(tmp.toList())
         }

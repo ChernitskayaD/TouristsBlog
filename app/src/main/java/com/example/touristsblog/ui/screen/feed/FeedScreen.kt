@@ -55,7 +55,7 @@ fun FeedScreen(
             ) {
                 Text(text = "Создать новый пост")
             }
-            Button(
+            /*Button(
                 onClick = { viewModel.onClickCreateNewPost() },
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier
@@ -63,7 +63,7 @@ fun FeedScreen(
                     .height(50.dp)
             ) {
                 Text(text = "Открыть для всех свой пост")
-            }
+            }*/
 
             screenState.forEach {
                 FeedPostCard(it, viewModel)
