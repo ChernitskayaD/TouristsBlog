@@ -35,6 +35,11 @@ class SignUpViewModel @Inject constructor(
         }
     }
 
+    fun onClickSignIn() = viewModelScope.launch {
+        navigateTo(
+            Routes.Login.generatePath()
+        )
+    }
     private val mErrorState = MutableStateFlow(savedStateHandle.get<String>("username") ?: "")
     val errorState: StateFlow<String>
         get() = mErrorState

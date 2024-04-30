@@ -1,5 +1,6 @@
 package com.example.touristsblog.ui.screen.login
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,6 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.touristsblog.ui.theme.TouristsBlogTheme
@@ -55,6 +57,7 @@ fun LoginScreen(
                 onValueChange = { password = it },
                 label = { Text("Пароль") },
                 shape = RoundedCornerShape(16.dp),
+                visualTransformation = PasswordVisualTransformation(),
                 colors = textFieldColors(backgroundColor = MaterialTheme.colors.background)
             )
             Text(
@@ -70,17 +73,10 @@ fun LoginScreen(
                     .fillMaxWidth()
                     .height(50.dp)
             ) {
-                Text(text = "Авторизоваться")
-            }
-
-            Button(
-                onClick = { loginViewModel.onClickSignUp() },
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp)
-            ) {
-                Text(text = "Нет аккаунта? Зарегистрироваться")
+                Text(
+                    text = "Авторизоваться",
+                    style = MaterialTheme.typography.button,
+                )
             }
             Text(
                 text = "Забыли пароль? Восстановить",
@@ -89,6 +85,26 @@ fun LoginScreen(
                 },
                 style = MaterialTheme.typography.h2,
             )
+            Text(
+                text = "Нет аккаунта?",
+                modifier = Modifier,
+                style = MaterialTheme.typography.h2,
+            )
+
+            Button(
+                onClick = { loginViewModel.onClickSignUp() },
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .border(width = 1.dp, color = Color.Black, shape = RoundedCornerShape(size = 16.dp)),
+                colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.background)
+            ) {
+                Text(
+                    text = "Зарегистрироваться",
+                    style = MaterialTheme.typography.button,
+                )
+            }
         }
     }
 }

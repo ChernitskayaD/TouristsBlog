@@ -6,12 +6,12 @@ import com.example.touristsblog.network.user.model.UserSignUp
 import com.example.touristsblog.network.user.model.UserSignUpDto
 
 fun UserSignIn.fromDomain() = UserSignInDto(
-    username,
-    password
+    username = username,
+    password = password
 )
 
 fun UserSignUp.fromDomain() = UserSignUpDto(
-    username,
-    mail,
-    password,
+    mail = mail,
+    name = username,
+    password = password,
 )
