@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.ExposedDropdownMenuDefaults.textFieldColors
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Settings
@@ -49,7 +50,6 @@ fun ProfileScreen(
     //val username by viewModel.usernameState.collectAsState()
     val context = LocalContext.current
     LaunchedEffect(true) {
-        //MapKitFactory.initialize(context)
         MapKitFactory.getInstance().onStart()
     }
 
@@ -69,8 +69,8 @@ fun ProfileScreen(
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            AsyncImage(
-                model = "https://w7.pngwing.com/pngs/846/897/png-transparent-user-male-avatar-account-profile-web-ui-color-icon.png",
+            Icon(
+                Icons.Default.AccountCircle,
                 contentDescription = "",
                 modifier = Modifier.size(56.dp),
             )

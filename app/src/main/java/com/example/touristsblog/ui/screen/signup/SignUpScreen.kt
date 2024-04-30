@@ -3,6 +3,7 @@ package com.example.touristsblog.ui.screen.signup
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -33,7 +34,7 @@ fun SignUpScreen(
     viewModel: SignUpViewModel
 ) {
     val error by viewModel.errorState.collectAsState()
-    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.SpaceAround) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.SpaceAround, modifier = Modifier.fillMaxSize()) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(top = 44.dp)) {
             Text(
                 text = "Регистрация",
@@ -46,7 +47,7 @@ fun SignUpScreen(
             modifier = Modifier
                 .padding(bottom = 60.dp, top = 24.dp)
                 .padding(horizontal = 24.dp)
-                .fillMaxWidth(),
+                .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             var name by remember { mutableStateOf("") }

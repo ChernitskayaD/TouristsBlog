@@ -26,7 +26,7 @@ fun LoginScreen(
     loginViewModel: LoginViewModel
 ) {
     val error by loginViewModel.errorState.collectAsState()
-    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.SpaceAround) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.SpaceAround, modifier = Modifier.fillMaxSize()) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(top = 44.dp)) {
             Text(
                 text = "Авторизация",
@@ -60,12 +60,14 @@ fun LoginScreen(
                 visualTransformation = PasswordVisualTransformation(),
                 colors = textFieldColors(backgroundColor = MaterialTheme.colors.background)
             )
-            Text(
-                text = error,
-                modifier = Modifier,
-                style = MaterialTheme.typography.body1,
-                color = Color.Red
-            )
+            if (error.isNotBlank()) {
+                Text(
+                    text = error,
+                    modifier = Modifier,
+                    style = MaterialTheme.typography.body1,
+                    color = Color.Red
+                )
+            }
             Button(
                 onClick = { loginViewModel.onClickLogin(email, password) },
                 shape = RoundedCornerShape(16.dp),
@@ -85,6 +87,15 @@ fun LoginScreen(
                 },
                 style = MaterialTheme.typography.h2,
             )
+        }
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .padding(bottom = 60.dp)
+                .padding(horizontal = 24.dp)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
             Text(
                 text = "Нет аккаунта?",
                 modifier = Modifier,
