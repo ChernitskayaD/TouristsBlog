@@ -17,6 +17,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -37,7 +38,7 @@ class CreatePostViewModel @Inject constructor(
     private val userSessionKey = stringPreferencesKey("user_session")
     private val postId = savedStateHandle.get<String>("postId") ?: ""
 
-    private var lastItemPos = 2
+    private var lastItemPos = 3
 
     private val mScreenState = MutableStateFlow(
         savedStateHandle.get<List<PostItem>>("screenstate") ?: listOf(
@@ -117,15 +118,15 @@ class CreatePostViewModel @Inject constructor(
     }
 
     fun getNextItemPos(): Int {
-        return lastItemPos++
+        return ++lastItemPos
     }
 
     fun savePost(filesDir: File) {
         viewModelScope.launch {
             val newPost = CreatePostDto(
                 authorId = prefs.data.map {
-                    it[userSessionKey]?.toInt()
-                }.first() ?: 0,
+                    it[userSessionKey]?.toIntOrNull()
+                }.firstOrNull() ?: 0,
                 postTitle = mScreenState.value[0].value,
                 postPic = mScreenState.value[2].value,
                 creationDate = LocalDateTime.now().toString(),

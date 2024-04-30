@@ -43,7 +43,7 @@ object Routes {
         routeDefinition = Definition(
             "CreatePost",
             argumentKeys = listOf(
-                "postId" to { type = NavType.StringType; optional = false }
+                "postId" to { type = NavType.StringType; optional = true }
             )
         ),
     )

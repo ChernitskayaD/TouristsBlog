@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.AlertDialog
@@ -52,6 +53,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import java.io.File
 import java.io.FileOutputStream
@@ -111,7 +113,7 @@ fun CreatePostScreen(
             }
         }
     ) {
-        Column(
+        LazyColumn(
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.spacedBy(20.dp),
             modifier = Modifier
@@ -120,29 +122,31 @@ fun CreatePostScreen(
         ) {
             state.value.forEach { item ->
                 when (item.itemType) {
-                    ItemType.TextItem -> TextContent(viewModel, item.itemPosition)
-                    ItemType.ImageItem -> ImagePicker(viewModel, item.itemPosition)
-                    ItemType.GeoItem -> GeoContent(viewModel, item.itemPosition)
-                    ItemType.TitleItem -> Title(viewModel, item.itemPosition)
+                    ItemType.TextItem -> item { TextContent(viewModel, item) }
+                    ItemType.ImageItem -> item { ImagePicker(viewModel, item) }
+                    ItemType.GeoItem -> item { GeoContent(viewModel, item) }
+                    ItemType.TitleItem -> item { Title(viewModel, item) }
                 }
             }
-            val context = LocalContext.current
-            Button(
-                onClick = {
-                    viewModel.savePost(context.filesDir)
-                },
-                shape = RoundedCornerShape(16.dp),
-                modifier = Modifier
-                    .padding(16.dp)
-                    .height(50.dp)
-                    .fillMaxWidth()
-            ) {
-                Text(
-                    text = "Сохранить",
+            item {
+                val context = LocalContext.current
+                Button(
+                    onClick = {
+                        viewModel.savePost(context.filesDir)
+                    },
+                    shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                )
+                        .padding(16.dp)
+                        .height(50.dp)
+                        .fillMaxWidth()
+                ) {
+                    Text(
+                        text = "Сохранить",
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                    )
+                }
             }
         }
     }
@@ -152,9 +156,9 @@ fun CreatePostScreen(
 @OptIn(ExperimentalMaterialApi::class)
 private fun Title(
     viewModel: CreatePostViewModel,
-    itemPosition: Int,
+    item: PostItem,
 ) {
-    var title by remember { mutableStateOf("Заголовок") }
+    var title by remember { mutableStateOf(item.value) }
 
     TextField(
         value = title,
@@ -162,7 +166,7 @@ private fun Title(
             .fillMaxWidth()
             .onFocusChanged {
                 if (!it.isFocused) {
-                    viewModel.updateItemValue(itemPosition, title)
+                    viewModel.updateItemValue(item.itemPosition, title)
                 }
             },
         onValueChange = {
@@ -177,7 +181,9 @@ private fun Title(
         ),
         singleLine = true,
         trailingIcon = {
-            Icon(Icons.Default.Delete, contentDescription = "", modifier = Modifier.clickable { viewModel.removeItem(itemPosition) })
+            if (item.itemPosition > 3) {
+                Icon(Icons.Default.Delete, contentDescription = "", modifier = Modifier.clickable { viewModel.removeItem(item.itemPosition) })
+            }
         }
     )
 }
@@ -186,20 +192,22 @@ private fun Title(
 @OptIn(ExperimentalMaterialApi::class)
 private fun TextContent(
     viewModel: CreatePostViewModel,
-    itemPosition: Int,
+    item: PostItem,
 ) {
-    var content by remember { mutableStateOf("") }
+    var content by remember { mutableStateOf(item.value) }
     TextField(
         value = content,
         modifier = Modifier
             .fillMaxWidth()
             .onFocusChanged {
                 if (!it.isFocused) {
-                    viewModel.updateItemValue(itemPosition, content)
+                    viewModel.updateItemValue(item.itemPosition, content)
                 }
             },
         onValueChange = {
-            content = it
+            if (it.length <= 255) {
+                content = it
+            }
         },
         label = { Text("Текст") },
         shape = RoundedCornerShape(16.dp),
@@ -208,8 +216,8 @@ private fun TextContent(
             focusedIndicatorColor = Color.Black,
             unfocusedIndicatorColor = Color.Transparent,
         ), trailingIcon = {
-            if (itemPosition > 2) {
-                Icon(Icons.Default.Delete, contentDescription = "", modifier = Modifier.clickable { viewModel.removeItem(itemPosition) })
+            if (item.itemPosition > 3) {
+                Icon(Icons.Default.Delete, contentDescription = "", modifier = Modifier.clickable { viewModel.removeItem(item.itemPosition) })
             }
         }
     )
@@ -219,11 +227,12 @@ private fun TextContent(
 @OptIn(ExperimentalMaterialApi::class)
 private fun GeoContent(
     viewModel: CreatePostViewModel,
-    itemPosition: Int,
+    item: PostItem,
 ) {
-    var content by remember { mutableStateOf("") }
-    var focus by remember { mutableStateOf(false) }
     val geoSearchState by viewModel.addressState.collectAsState()
+
+    var content by remember { mutableStateOf(item.value) }
+    var focus by remember { mutableStateOf(false) }
     Row {
         Icon(Icons.Default.Place, contentDescription = "", modifier = Modifier.align(CenterVertically))
         TextField(
@@ -233,7 +242,7 @@ private fun GeoContent(
                 .onFocusChanged {
                     focus = it.isFocused
                     if (!it.isFocused) {
-                        viewModel.updateItemValue(itemPosition, content)
+                        viewModel.updateItemValue(item.itemPosition, content)
                     }
                 },
             onValueChange = {
@@ -249,7 +258,9 @@ private fun GeoContent(
                 focusedIndicatorColor = Color.Black,
                 unfocusedIndicatorColor = Color.Transparent,
             ), trailingIcon = {
-                Icon(Icons.Default.Delete, contentDescription = "", modifier = Modifier.clickable { viewModel.removeItem(itemPosition) })
+                if (item.itemPosition > 3) {
+                    Icon(Icons.Default.Delete, contentDescription = "", modifier = Modifier.clickable { viewModel.removeItem(item.itemPosition) })
+                }
             }
         )
     }
@@ -273,16 +284,20 @@ private fun GeoContent(
 @Composable
 fun ImagePicker(
     viewModel: CreatePostViewModel,
-    itemPosition: Int,
+    item: PostItem,
 ) {
     val context = LocalContext.current
     var imageUri by remember { mutableStateOf<Uri?>(null) }
+    if (item.value.isNotBlank()) {
+        val file = File(context.filesDir, item.value)
+        imageUri = Uri.fromFile(file)
+    }
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { uri: Uri? ->
             imageUri = uri
             if (uri != null) {
-                viewModel.updateItemValue(itemPosition, saveFileToLocalStorage(uri, context))
+                viewModel.updateItemValue(item.itemPosition, saveFileToLocalStorage(uri, context))
             }
         }
     )
@@ -295,20 +310,22 @@ fun ImagePicker(
         }
 
         imageUri?.let {
-            Image(
-                painter = rememberAsyncImagePainter(it),
+            AsyncImage(
+                it,
                 contentDescription = null,
                 modifier = Modifier.fillMaxWidth(),
                 contentScale = ContentScale.Fit
             )
         }
-        Icon(
-            Icons.Default.Delete,
-            contentDescription = "",
-            modifier = Modifier
-                .align(Alignment.CenterVertically)
-                .clickable { viewModel.removeItem(itemPosition) })
-
+        if (item.itemPosition > 3) {
+            Icon(
+                Icons.Default.Delete,
+                contentDescription = "",
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .clickable { viewModel.removeItem(item.itemPosition) }
+            )
+        }
     }
 }
 
@@ -321,7 +338,7 @@ private fun saveFileToLocalStorage(uri: Uri, context: Context): String {
         val fileName = System.currentTimeMillis().toString() // Генерируем уникальное имя файла
         val file = File(context.filesDir, fileName)
         outputStream = FileOutputStream(file)
-        savedFilePath = fileName //file.absolutePath
+        savedFilePath = fileName
 
         inputStream?.copyTo(outputStream) ?: throw IOException("Не удалось сохранить файл")
     } catch (e: IOException) {
