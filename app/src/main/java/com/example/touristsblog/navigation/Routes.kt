@@ -40,7 +40,12 @@ object Routes {
     )
 
     object CreatePost : ScreenRoute(
-        routeDefinition = Definition("CreatePost"),
+        routeDefinition = Definition(
+            "CreatePost",
+            argumentKeys = listOf(
+                "postId" to { type = NavType.StringType; optional = false }
+            )
+        ),
     )
 
     object PostList : ScreenRoute(

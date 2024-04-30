@@ -8,10 +8,7 @@
                 tools:ignore="AcceptsUserCertificates" />
         </trust-anchors>
     </base-config>
-    <domain-config>
-        <domain includeSubdomains="true">github.com</domain>
-        <trust-anchors>
-            <certificates src="system"/>
-        </trust-anchors>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">s3.eu-central-1.amazonaws.com</domain>
     </domain-config>
 </network-security-config>

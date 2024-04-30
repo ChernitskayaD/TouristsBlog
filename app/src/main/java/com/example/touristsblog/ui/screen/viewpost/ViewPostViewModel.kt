@@ -6,6 +6,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.compose.rememberNavController
 import com.example.touristsblog.BaseViewModel
+import com.example.touristsblog.navigation.Routes
+import com.example.touristsblog.navigation.routing.generatePath
 import com.example.touristsblog.network.DeletePostUseCase
 import com.example.touristsblog.network.GetPostsUseCase
 import com.example.touristsblog.network.UpdateVisibilityPostsUseCase
@@ -33,7 +35,6 @@ class ViewPostViewModel @Inject constructor(
     private val mScreenState = MutableStateFlow(listOf<PostItem>())
 
     init {
-        Log.i("TEST", postId)
         viewModelScope.launch {
             val response = getPostUseCase.invoke(GetPostDto(postId))
             isOpen.value = response.isOpen
@@ -41,10 +42,10 @@ class ViewPostViewModel @Inject constructor(
                 .content.map {
                     PostItem(
                         itemPosition = it.itemPosition, value = it.value, itemType = when (it.itemType) {
-                            "Заголовок" -> ItemType.TitleItem
-                            "Текст" -> ItemType.TextItem
-                            "Изображение" -> ItemType.ImageItem
-                            "Геометка" -> ItemType.GeoItem
+                            "title" -> ItemType.TitleItem
+                            "text" -> ItemType.TextItem
+                            "image" -> ItemType.ImageItem
+                            "geo" -> ItemType.GeoItem
                             else -> ItemType.TextItem
                         }
                     )
@@ -70,8 +71,13 @@ class ViewPostViewModel @Inject constructor(
             }
         }
     }
-
-    fun goBack() {
-        navBack()
+    fun openPost() {
+        viewModelScope.launch {
+            navigateTo(
+                Routes.CreatePost.generatePath(
+                    "postId" to postId
+                )
+            )
+        }
     }
 }

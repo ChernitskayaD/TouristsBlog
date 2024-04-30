@@ -8,6 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.touristsblog.BaseViewModel
 import com.example.touristsblog.network.DadataBody
 import com.example.touristsblog.network.DadataUseCase
+import com.example.touristsblog.network.GetPostsUseCase
+import com.example.touristsblog.network.model.GetPostDto
 import com.example.touristsblog.network.myposts.CreatePostUseCase
 import com.example.touristsblog.network.myposts.model.requests.CreatePostDto
 import com.example.touristsblog.network.myposts.model.requests.PostItemDto
@@ -27,11 +29,13 @@ import javax.inject.Inject
 @HiltViewModel
 class CreatePostViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
+    private val getPostUseCase: GetPostsUseCase,
     private val createPostUseCase: CreatePostUseCase,
     private val dadataUseCase: DadataUseCase,
     private val prefs: DataStore<Preferences>,
 ) : BaseViewModel() {
     private val userSessionKey = stringPreferencesKey("user_session")
+    private val postId = savedStateHandle.get<String>("postId") ?: ""
 
     private var lastItemPos = 2
 
@@ -52,6 +56,26 @@ class CreatePostViewModel @Inject constructor(
     val addressState: StateFlow<List<String>>
         get() = mAddressesState
 
+    init {
+        if(postId != "") {
+            viewModelScope.launch {
+                val response = getPostUseCase.invoke(GetPostDto(postId))
+                val content = response
+                    .content.map {
+                        PostItem(
+                            itemPosition = it.itemPosition, value = it.value, itemType = when (it.itemType) {
+                                "title" -> ItemType.TitleItem
+                                "text" -> ItemType.TextItem
+                                "image" -> ItemType.ImageItem
+                                "geo" -> ItemType.GeoItem
+                                else -> ItemType.TextItem
+                            }
+                        )
+                    }
+                mScreenState.emit(content)
+            }
+        }
+    }
     fun searchAddress(query: String){
         viewModelScope.launch {
             val result = dadataUseCase.invoke(DadataBody(query, 5))
